@@ -95,8 +95,9 @@ module user_proj_example #(
     // IO
     assign io_out[35] = q;
     assign io_oeb=0;
+    //assign {clk,reset,load,seed} = io_in[`MPRJ_IO_PADS-2:0]; 
     assign clk = wb_clk_i;
-    assign reset = wb_rst_i;
+    assign rst = wb_rst_i;
     assign load = io_in[`MPRJ_IO_PADS-9];
     assign seed = io_in[`MPRJ_IO_PADS-3:0];
     //assign io_oeb = {(`MPRJ_IO_PADS-1){rst}};
