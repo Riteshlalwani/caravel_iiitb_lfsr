@@ -70,11 +70,14 @@ module user_proj_example #(
 );
     wire clk;
     wire rst;
+    wire[3:0]seed;
+    wire load;
+    wire q;
 
     wire [`MPRJ_IO_PADS-1:0] io_in;
     wire [`MPRJ_IO_PADS-1:0] io_out;
     wire [`MPRJ_IO_PADS-1:0] io_oeb;
-
+/*
     wire [31:0] rdata; 
     wire [31:0] wdata;
     wire [BITS-1:0] count;
@@ -88,15 +91,21 @@ module user_proj_example #(
     assign wstrb = wbs_sel_i & {4{wbs_we_i}};
     assign wbs_dat_o = rdata;
     assign wdata = wbs_dat_i;
-
+*/
     // IO
-    assign io_out = count;
-    assign io_oeb = {(`MPRJ_IO_PADS-1){rst}};
+    assign io_out[35] = q;
+    assign io_oeb=0;
+    assign clk = wb_clk_i;
+    assign reset = wb_rst_i;
+    assign load = io_in[`MPRJ_IO_PADS-9];
+    assign seed = io_in[`MPRJ_IO_PADS-3:0];
+    //assign io_oeb = {(`MPRJ_IO_PADS-1){rst}};
 
     // IRQ
     assign irq = 3'b000;	// Unused
 
     // LA
+    /*
     assign la_data_out = {{(127-BITS){1'b0}}, count};
     // Assuming LA probes [63:32] are for controlling the count register  
     assign la_write = ~la_oenb[63:32] & ~{BITS{valid}};
@@ -117,49 +126,52 @@ module user_proj_example #(
         .la_write(la_write),
         .la_input(la_data_in[63:32]),
         .count(count)
-    );
-
+    );*/
+iiitb_lfsr dut(q, clk, rst, seed, load);
+endmodule
+module mux(q, control, a, b);
+output q;
+reg q;
+input control, a, b;
+wire notcontrol;
+always @(control or
+notcontrol or
+a or b)
+q = (control & a) |
+(notcontrol & b);
+not (notcontrol, control);
+endmodule
+module flipflop(q, clk, rst, d);
+input clk;
+input rst;
+input d;
+output q;
+reg q;
+always @(posedge clk or posedge rst)
+begin
+if (rst)
+q = 0;
+else
+q = d;
+end
 endmodule
 
-module counter #(
-    parameter BITS = 32
-)(
-    input clk,
-    input reset,
-    input valid,
-    input [3:0] wstrb,
-    input [BITS-1:0] wdata,
-    input [BITS-1:0] la_write,
-    input [BITS-1:0] la_input,
-    output ready,
-    output [BITS-1:0] rdata,
-    output [BITS-1:0] count
-);
-    reg ready;
-    reg [BITS-1:0] count;
-    reg [BITS-1:0] rdata;
 
-    always @(posedge clk) begin
-        if (reset) begin
-            count <= 0;
-            ready <= 0;
-        end else begin
-            ready <= 1'b0;
-            if (~|la_write) begin
-                count <= count + 1;
-            end
-            if (valid && !ready) begin
-                ready <= 1'b1;
-                rdata <= count;
-                if (wstrb[0]) count[7:0]   <= wdata[7:0];
-                if (wstrb[1]) count[15:8]  <= wdata[15:8];
-                if (wstrb[2]) count[23:16] <= wdata[23:16];
-                if (wstrb[3]) count[31:24] <= wdata[31:24];
-            end else if (|la_write) begin
-                count <= la_write & la_input;
-            end
-        end
-    end
-
+module iiitb_lfsr(q, clk, rst, seed, load);
+output q;
+input [3:0] seed;
+input load;
+input rst;
+input clk;
+wire [3:0] state_out;
+wire [3:0] state_in;
+flipflop F[3:0] (state_out, clk, rst, state_in);
+mux M1[3:0] (state_in, load, seed, {state_out[2],
+state_out[1],
+state_out[0],
+nextbit});
+xor G1(nextbit, state_out[2], state_out[3]);
+assign q = nextbit;
 endmodule
+
 `default_nettype wire
