@@ -1,12 +1,16 @@
-# Caravel User Project
+# iiit_lfsr- Linear feedback shift register
+## Description
 
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0) [![UPRJ_CI](https://github.com/efabless/caravel_project_example/actions/workflows/user_project_ci.yml/badge.svg)](https://github.com/efabless/caravel_project_example/actions/workflows/user_project_ci.yml) [![Caravel Build](https://github.com/efabless/caravel_project_example/actions/workflows/caravel_build.yml/badge.svg)](https://github.com/efabless/caravel_project_example/actions/workflows/caravel_build.yml)
+The Aim of this exercise is to design a linear feedback shift register to produce a random number sequence. We would be using 130nm technology node by Skywater. We would also understand the functionality, pre-layout and post-layout characterstics.
 
-| :exclamation: Important Note            |
-|-----------------------------------------|
+Note: Circuit requires further optimization to improve performance. Design yet to be modified.
 
-## Please fill in your project documentation in this README.md file 
+## Introduction
 
-Refer to [README](docs/source/index.rst#section-quickstart) for a quickstart of how to use caravel_user_project
+Linear feedback shift register has 4 d-flipflops and a Ex-or Gate. We would also use multiplexers to initialize the sequence. This design would generate a sequence of numbers(bits). Although the sequence generated can be predicted by observing the previous bits as it would be repeating a cycle. However we can modify the circuit and its feedback paths to make it look more random and decrease the predictibilty. [^1]
 
-Refer to [README](docs/source/index.rst) for this sample project documentation. 
+## Application of LFSR(Linear feedback shift register)
+LFSR counter has various applications
+- *Uses in cryptograpgy*
+- *Uses in circuit testing*
+- *Uses in puzzles and games*
