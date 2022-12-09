@@ -95,7 +95,9 @@ module user_proj_example #(
     // IO
     assign io_out[35] = q;
     assign io_oeb=0;
-    assign {clk,reset,load,seed} = io_in[`MPRJ_IO_PADS-2:0]; 
+    assign clk = wb_clk_i;
+    assign reset = wb_rst_i;
+    assign {load,seed} = io_in[35:31]; 
     
     // IRQ
     assign irq = 3'b000;	// Unused
